@@ -124,16 +124,6 @@ export function assert(condition: unknown, message?: string): asserts condition 
 };
 
 /**
- * Asserts that a value is of a specific type.
- * @param condition Expression to be evaluated, as in `typeof x === 'number'`.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertType(condition: unknown, message?: string): asserts condition {
-    if (!message) message = 'value is not of the expected type';
-    if (!condition) throw new AssertionError(message);
-};
-
-/**
  * Asserts that a value is an instance of a specific type.
  * @param value Value to be checked.
  * @param type Type to be checked against.
