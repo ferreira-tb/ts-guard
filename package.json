@@ -1,7 +1,8 @@
 {
-    "name": "ts-guard",
+    "name": "@tb-dev/ts-guard",
     "version": "1.0.0",
     "description": "Type guards and assertions for TypeScript",
+    "repository": "ferreira-tb/ts-guard",
     "author": {
         "name": "Andrew Ferreira",
         "email": "andrew.shien2@gmail.com",
@@ -31,5 +32,8 @@
         "tslib": "^2.5.0",
         "typescript": "^4.9.5",
         "vitest": "^0.28.5"
-    }
+    },
+    "files": [
+        "dist/**/*"
+    ]
 }
