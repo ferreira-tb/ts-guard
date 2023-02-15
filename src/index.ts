@@ -116,8 +116,12 @@ export const isFalseOrNull = (value: unknown): value is boolean | null => (value
 // Null and undefined.
 /** Verify if a value is null. */
 export const isNull = (value: unknown): value is null => value === null;
+/** Verify if a value is not null. */
+export const isNotNull = <T>(value: T): value is Exclude<T, null> => !isNull(value);
 /** Verify if a value is undefined. */
 export const isUndefined = (value: unknown): value is undefined => value === undefined;
+/** Verify if a value is not undefined. */
+export const isNotUndefined = <T>(value: T): value is Exclude<T, undefined> => !isUndefined(value);
 /** Verify if a value is nullish. */
 export const isNullish = (value: unknown): value is null | undefined => isNull(value) || isUndefined(value);
 /** Verify if a value is not nullish. */
@@ -601,6 +605,46 @@ export function assertFalseOrNull(value: unknown, message?: string): asserts val
 };
 
 // Null and undefined.
+/**
+ * Asserts that a value is null.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNull(value: unknown, message?: string): asserts value is null {
+    if (!message) message = 'value is not null';
+    if (!isNull(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is not null.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotNull<T>(value: T, message?: string): asserts value is Exclude<T, null> {
+    if (!message) message = 'value is null';
+    if (isNull(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is undefined.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertUndefined(value: unknown, message?: string): asserts value is undefined {
+    if (!message) message = 'value is not undefined';
+    if (!isUndefined(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is not undefined.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotUndefined<T>(value: T, message?: string): asserts value is Exclude<T, undefined> {
+    if (!message) message = 'value is undefined';
+    if (isUndefined(value)) throw new AssertionError(message);
+};
+
 /**
  * Asserts that a value is nullish.
  * @param value Value to be checked.
