@@ -1,4 +1,4 @@
-class AssertionError extends Error {
+export class AssertionError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'AssertionError';
@@ -108,8 +108,51 @@ export const isTrueOrNull = (value: unknown): value is boolean | null => (value 
 export const isFalseOrNull = (value: unknown): value is boolean | null => (value === null || value === false);
 
 // Null and undefined.
+/** Verify if a value is null. */
+export const isNull = (value: unknown): value is null => value === null;
+/** Verify if a value is undefined. */
+export const isUndefined = (value: unknown): value is undefined => value === undefined;
 /** Verify if a value is nullish. */
-export const isNullish = (value: unknown): value is null | undefined => value === null || value === undefined;
+export const isNullish = (value: unknown): value is null | undefined => isNull(value) || isUndefined(value);
+/** Verify if a value is not nullish. */
+export const isNotNullish = (value: unknown) => !isNull(value) && !isUndefined(value);
+
+// Arrays.
+/** Verify if a value is an array. */
+export const isArray: typeof Array['isArray'] = (value: any): value is any[] => Array.isArray(value);
+/** Verify if a value is included in an array. */
+export const arrayIncludes = <T>(array: T[], value: unknown): value is T => array.includes(value as T);
+
+// Objects.
+/** Verify if a value is an object. */
+export const isObject = <T extends object>(value: unknown): value is T => {
+    return typeof value === 'object' && !isNull(value) && !isArray(value);
+};
+
+/**
+ * Verify if two objects have exactly the same keys.
+ * @param value Value to be checked.
+ * @param reference Object to be used as reference.
+ */
+export function objectHasSameKeys<T extends object>(value: T, reference: unknown): value is T {
+    try {
+        if (!isObject(value) || !isObject(reference)) return false;
+
+        const keys = new Set(Object.keys(value));
+        const referenceKeys = new Set(Object.keys(reference));
+    
+        if(keys.size !== referenceKeys.size) return false;
+    
+        for (const item of keys.values()) {
+            if(!referenceKeys.has(item)) return false;
+        };
+
+        return true;
+
+    } catch {
+        return false;
+    };
+};
 
 /////// ASSERTIONS ///////
 // General.
@@ -541,12 +584,74 @@ export function assertNullish(value: unknown, message?: string): asserts value i
     if (!isNullish(value)) throw new AssertionError(message);
 };
 
+/**
+ * Asserts that a value is not nullish.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotNullish(value: unknown, message?: string) {
+    if (!message) message = 'value is nullish';
+    if (isNullish(value)) throw new AssertionError(message);
+};
+
+// Arrays.
+export function assertArray<T>(value: unknown, message?: string): asserts value is T[] {
+    if (!message) message = 'value is not an array';
+    if (!isArray(value)) throw new AssertionError(message);
+};
+
+export function assertArrayIncludes<T>(array: T[], value: unknown, message?: string): asserts value is T {
+    if (!message) message = 'value is not included in the array';
+    if (!arrayIncludes(array, value)) throw new AssertionError(message);
+};
+
+// Objects.
+/**
+ * Asserts that a value is an object.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertObject<T extends object>(value: T, message?: string): asserts value is T {
+    if (!message) message = 'value is not an object';
+    if (!isObject(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is an object and it has exactly the same keys as another object.
+ * @param value Value to be checked.
+ * @param item Item to compare the keys with.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertObjectHasSameKeys<T extends object>(value: T, item: unknown, message?: string): asserts value is T {
+    if (!message) message = 'value does not have the same keys as item';
+    if (!objectHasSameKeys(value, item)) throw new AssertionError(message);
+};
+
 /////// HELPERS ///////
 /**
- * Converts a value to null if it does not pass a type guard.
+ * Checks a value against a type guard and returns `null` if it does not pass.
  * @param value Value to be checked.
  * @param guard Type guard to be used.
  */
 export function toNull<T>(value: T, guard: (...args: any[]) => boolean): T | null {
     return guard(value) ? value : null;
+};
+
+/**
+ * Checks a value against a type guard and returns `undefined` if it does not pass.
+ * @param value Value to be checked.
+ * @param guard Type guard to be used.
+ */
+export function toUndefined<T>(value: T, guard: (...args: any[]) => boolean): T | undefined {
+    return guard(value) ? value : undefined;
+};
+
+/**
+ * Checks a value against a type guard and returns a custom value if it does not pass.
+ * @param value Value to be checked.
+ * @param custom Will be returned if `value` does not pass the type guard.
+ * @param guard Type guard to be used.
+ */
+export function toCustom<T, C>(value: T, custom: C, guard: (...args: any[]) => boolean): T | C {
+    return guard(value) ? value : custom;
 };

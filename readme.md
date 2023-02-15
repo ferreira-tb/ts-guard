@@ -1,3 +1,3 @@
 ```
-npm i -D @tb-dev/ts-guard
+npm i @tb-dev/ts-guard
 ```
