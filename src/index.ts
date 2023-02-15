@@ -6,6 +6,10 @@ export class AssertionError extends Error {
 };
 
 /////// TYPE GUARDS ///////
+// General.
+/** Verify if a value is instance of a class. */
+export const isInstanceOf = <T>(value: unknown, constructor: new (...args: any[]) => T): value is T => value instanceof constructor;
+
 // Numbers.
 /** Verify if a value is a number. */
 export const isNumber = (value: unknown): value is number => typeof value === 'number';
@@ -13,14 +17,6 @@ export const isNumber = (value: unknown): value is number => typeof value === 'n
 export const isInteger = (value: unknown): value is number => Number.isInteger(value);
 /** Verify if a value is a finite number. */
 export const isFiniteNumber = (value: unknown): value is number => Number.isFinite(value);
-/** Verify if a value is a positive number. */
-export const isPositiveNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) === 1);
-/** Verify if a value is a positive integer. */
-export const isPositiveInteger = (value: unknown): value is number => (isInteger(value) && Math.sign(value) === 1);
-/** Verify if a value is a negative number. */
-export const isNegativeNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) === -1);
-/** Verify if a value is a negative integer. */
-export const isNegativeInteger = (value: unknown): value is number => (isInteger(value) && Math.sign(value) === -1);
 
 // Numbers, excluding zero.
 /** Verify if a value is a number different from zero. */
@@ -33,16 +29,30 @@ export const isNumberOrNull = (value: unknown): value is number | null => (value
 export const isIntegerOrNull = (value: unknown): value is number | null => (value === null || isInteger(value));
 /** Verify if a value is a finite number, or null. */
 export const isFiniteOrNull = (value: unknown): value is number | null => (value === null || isFiniteNumber(value));
-/** Verify if a value is positive number, or null. */
+/** Verify if a value is a number different from zero, or null. */
+export const isNotZeroOrNull = (value: unknown): value is number | null => (value === null || isNotZero(value));
+
+// Positive or negative numbers.
+/** Verify if a value is a positive finite number. */
+export const isPositiveNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) === 1);
+/** Verify if a value is a positive integer. */
+export const isPositiveInteger = (value: unknown): value is number => (isInteger(value) && Math.sign(value) === 1);
+/** Verify if a value is a negative finite number. */
+export const isNegativeNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) === -1);
+/** Verify if a value is a negative integer. */
+export const isNegativeInteger = (value: unknown): value is number => (isInteger(value) && Math.sign(value) === -1);
+/** Verify if a value is positive finite number, or null. */
 export const isPositiveOrNull = (value: unknown): value is number | null => (value === null || isPositiveNumber(value));
 /** Verify if a value is positive integer, or null. */
 export const isPositiveIntegerOrNull = (value: unknown): value is number | null => (value === null || isPositiveInteger(value));
-/** Verify if a value is negative number, or null. */
+/** Verify if a value is negative finite number, or null. */
 export const isNegativeOrNull = (value: unknown): value is number | null => (value === null || isNegativeNumber(value));
 /** Verify if a value is negative integer, or null. */
 export const isNegativeIntegerOrNull = (value: unknown): value is number | null => (value === null || isNegativeInteger(value));
-/** Verify if a value is a number different from zero, or null. */
-export const isNotZeroOrNull = (value: unknown): value is number | null => (value === null || isNotZero(value));
+/** Verify if a value is not a positive number. */
+export const isNotPositiveNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) !== 1);
+/** Verify if a value is not a negative number. */
+export const isNotNegativeNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) !== -1);
 
 // Strings.
 /** Verify if a value is a string, including empty strings. */
@@ -167,14 +177,14 @@ export function assert(condition: unknown, message?: string): asserts condition 
 };
 
 /**
- * Asserts that a value is an instance of a specific type.
+ * Asserts that a value is an instance of a specific class.
  * @param value Value to be checked.
- * @param type Type to be checked against.
+ * @param constructor Class to be checked against.
  * @param message Message to be displayed if the condition is not met.
  */
-export function assertInstanceOf(value: unknown, type: new () => any, message?: string): asserts value is InstanceType<typeof type> {
-    if (!message) message = 'value is not an instance of the expected type';
-    if (!(value instanceof type)) throw new AssertionError(message);
+export function assertInstanceOf<T>(value: unknown, constructor: new (...args: any[]) => T, message?: string): asserts value is T {
+    if (!message) message = 'value is not an instance of the specified class';
+    if (!isInstanceOf(value, constructor)) throw new AssertionError(message);
 };
 
 // Numbers.
@@ -205,46 +215,6 @@ export function assertInteger(value: unknown, message?: string): asserts value i
 export function assertFinite(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a finite number';
     if (!isFiniteNumber(value)) throw new AssertionError(message);
-};
-
-/**
- * Asserts that a value is a positive number.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertPositiveNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a positive number';
-    if (!isPositiveNumber(value)) throw new AssertionError(message);
-};
-
-/**
- * Asserts that a value is a positive integer.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertPositiveInteger(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a positive integer';
-    if (!isPositiveInteger(value)) throw new AssertionError(message);
-}
-
-/**
- * Asserts that a value is a negative number.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertNegativeNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a negative number';
-    if (!isNegativeNumber(value)) throw new AssertionError(message);
-};
-
-/**
- * Asserts that a value is a negative integer.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertNegativeInteger(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a negative integer';
-    if (!isNegativeInteger(value)) throw new AssertionError(message);
 };
 
 // Numbers, excluding zero.
@@ -290,7 +260,58 @@ export function assertFiniteOrNull(value: unknown, message?: string): asserts va
 };
 
 /**
- * Asserts that a value is a positive number, or null.
+ * Asserts that a value is a number different from zero, or null.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotZeroOrNull(value: unknown, message?: string): asserts value is number | null {
+    if (!message) message = 'value is not a number different from zero or null';
+    if (!isNotZeroOrNull(value)) throw new AssertionError(message);
+};
+
+// Positive or negative numbers.
+/**
+ * Asserts that a value is a positive finite number.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertPositiveNumber(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a positive number';
+    if (!isPositiveNumber(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is a positive integer.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertPositiveInteger(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a positive integer';
+    if (!isPositiveInteger(value)) throw new AssertionError(message);
+}
+
+/**
+ * Asserts that a value is a negative finite number.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNegativeNumber(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a negative number';
+    if (!isNegativeNumber(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is a negative integer.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNegativeInteger(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a negative integer';
+    if (!isNegativeInteger(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is a positive finite number, or null.
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
@@ -310,7 +331,7 @@ export function assertPositiveIntegerOrNull(value: unknown, message?: string): a
 }
 
 /**
- * Asserts that a value is a negative number, or null.
+ * Asserts that a value is a negative finite number, or null.
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
@@ -330,13 +351,23 @@ export function assertNegativeIntegerOrNull(value: unknown, message?: string): a
 };
 
 /**
- * Asserts that a value is a number different from zero, or null.
+ * Asserts that a value is a finite number different from zero and not positive.
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
-export function assertNotZeroOrNull(value: unknown, message?: string): asserts value is number | null {
-    if (!message) message = 'value is not a number different from zero or null';
-    if (!isNotZeroOrNull(value)) throw new AssertionError(message);
+export function assertNotPositiveNumber(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a number different from zero and not positive';
+    if (!isNotPositiveNumber(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is a finite number different from zero and not negative.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotNegativeNumber(value: unknown, message?: string): asserts value is number {
+    if (!message) message = 'value is not a number different from zero and not negative';
+    if (!isNotNegativeNumber(value)) throw new AssertionError(message);
 };
 
 // Strings.
