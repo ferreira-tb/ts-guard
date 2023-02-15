@@ -662,6 +662,49 @@ export function toUndefined<T>(value: T, guard: (...args: any[]) => boolean): T 
 };
 
 /**
+ * Checks a value against a type guard and parses it to an integer if it does not pass.
+ * This function may return `NaN` if the value cannot be parsed.
+ * If you want to ensure that the value is an integer, use `toIntegerStrict` instead.
+ * @param value Value to be checked.
+ * @param guard Type guard to be used.
+ * @param radix A value between 2 and 36 that specifies the base of the number in string.
+ * If this argument is not supplied, strings with a prefix of '0x' are considered hexadecimal. All other strings are considered decimal.
+ */
+export function toInteger<T>(value: T, guard: (...args: any[]) => boolean, radix: number = 10): T | number {
+    return guard(value) ? value : Number.parseInt(value as any, radix);
+};
+
+/**
+ * Checks a value against a type guard and parses it to an integer if it does not pass.
+ * This function will throw an error if the value cannot be parsed.
+ * If you want to allow `NaN` as a return value, use `toInteger` instead.
+ * @param value Value to be checked.
+ * @param guard Type guard to be used.
+ * @param radix A value between 2 and 36 that specifies the base of the number in string.
+ * If this argument is not supplied, strings with a prefix of '0x' are considered hexadecimal. All other strings are considered decimal.
+ */
+export function toIntegerStrict<T>(value: T, guard: (...args: any[]) => boolean, radix: number = 10): T | number {
+    if (guard(value)) return value;
+    const parsed = Number.parseInt(value as any, radix);
+    assertInteger(parsed);
+    return parsed;
+};
+
+/**
+ * Checks a value against a type guard and parses it to an integer if it does not pass.
+ * This function will return `null` if the value cannot be parsed.
+ * @param value Value to be checked.
+ * @param guard Type guard to be used.
+ * @param radix A value between 2 and 36 that specifies the base of the number in string.
+ * If this argument is not supplied, strings with a prefix of '0x' are considered hexadecimal. All other strings are considered decimal.
+ */
+export function toIntegerOrNull<T>(value: T, guard: (...args: any[]) => boolean, radix: number = 10): T | number | null {
+    if (guard(value)) return value;
+    const parsed = Number.parseInt(value as any, radix);
+    return isInteger(parsed) ? parsed : null;
+};
+
+/**
  * Checks a value against a type guard and returns a custom value if it does not pass.
  * @param value Value to be checked.
  * @param custom Will be returned if `value` does not pass the type guard.
