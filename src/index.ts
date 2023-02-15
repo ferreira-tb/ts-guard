@@ -104,10 +104,6 @@ export const isNotZeroOrAnyString = (value: unknown): value is number | string =
 // Booleans.
 /** Verify if a value is a boolean. */
 export const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
-/** Verify if a value is truthy. */
-export const isTruthy = (value: unknown) => Boolean(value);
-/** Verify if a value is falsy. */
-export const isFalsy = (value: unknown) => !Boolean(value);
 
 // Booleans, including null.
 /** Verify if a value is a boolean or null. */
@@ -124,8 +120,6 @@ export const isNull = (value: unknown): value is null => value === null;
 export const isUndefined = (value: unknown): value is undefined => value === undefined;
 /** Verify if a value is nullish. */
 export const isNullish = (value: unknown): value is null | undefined => isNull(value) || isUndefined(value);
-/** Verify if a value is not nullish. */
-export const isNotNullish = (value: unknown) => !isNull(value) && !isUndefined(value);
 
 // Arrays.
 /** Verify if a value is an array. */
@@ -613,16 +607,6 @@ export function assertFalseOrNull(value: unknown, message?: string): asserts val
 export function assertNullish(value: unknown, message?: string): asserts value is null | undefined {
     if (!message) message = 'value is not nullish';
     if (!isNullish(value)) throw new AssertionError(message);
-};
-
-/**
- * Asserts that a value is not nullish.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertNotNullish(value: unknown, message?: string) {
-    if (!message) message = 'value is nullish';
-    if (isNullish(value)) throw new AssertionError(message);
 };
 
 // Arrays.

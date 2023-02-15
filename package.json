@@ -1,6 +1,6 @@
 {
     "name": "@tb-dev/ts-guard",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Type guards and assertions for TypeScript",
     "repository": "ferreira-tb/ts-guard",
     "author": {
