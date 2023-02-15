@@ -134,34 +134,9 @@ export const isArray: typeof Array['isArray'] = (value: any): value is any[] => 
 export const arrayIncludes = <T>(array: T[], value: unknown): value is T => array.includes(value as T);
 
 // Objects.
-/** Verify if a value is an object. */
+/** Verify if a value is an object, excluding null and arrays. */
 export const isObject = <T extends object>(value: unknown): value is T => {
     return typeof value === 'object' && !isNull(value) && !isArray(value);
-};
-
-/**
- * Verify if two objects have exactly the same keys.
- * @param value Value to be checked.
- * @param reference Object to be used as reference.
- */
-export function objectHasSameKeys<T extends object>(value: T, reference: unknown): value is T {
-    try {
-        if (!isObject(value) || !isObject(reference)) return false;
-
-        const keys = new Set(Object.keys(value));
-        const referenceKeys = new Set(Object.keys(reference));
-    
-        if(keys.size !== referenceKeys.size) return false;
-    
-        for (const item of keys.values()) {
-            if(!referenceKeys.has(item)) return false;
-        };
-
-        return true;
-
-    } catch {
-        return false;
-    };
 };
 
 /////// ASSERTIONS ///////
@@ -685,17 +660,6 @@ export function assertArrayIncludes<T>(array: T[], value: unknown, message?: str
 export function assertObject<T extends object>(value: T, message?: string): asserts value is T {
     if (!message) message = 'value is not an object';
     if (!isObject(value)) throw new AssertionError(message);
-};
-
-/**
- * Asserts that a value is an object and it has exactly the same keys as another object.
- * @param value Value to be checked.
- * @param item Item to compare the keys with.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertObjectHasSameKeys<T extends object>(value: T, item: unknown, message?: string): asserts value is T {
-    if (!message) message = 'value does not have the same keys as item';
-    if (!objectHasSameKeys(value, item)) throw new AssertionError(message);
 };
 
 /////// HELPERS ///////
