@@ -345,22 +345,22 @@ export function assertNegativeIntegerOrNull(value: unknown, message?: string): a
 };
 
 /**
- * Asserts that a value is a finite number different from zero and not positive.
+ * Asserts that a value is a nonpositive finite number.
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
 export function assertNotPositiveNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a number different from zero and not positive';
+    if (!message) message = 'value is not a nonpositive number';
     if (!isNotPositiveNumber(value)) throw new AssertionError(message);
 };
 
 /**
- * Asserts that a value is a finite number different from zero and not negative.
+ * Asserts that a value is a nonnegative finite number.
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
 export function assertNotNegativeNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a number different from zero and not negative';
+    if (!message) message = 'value is not a nonnegative number';
     if (!isNotNegativeNumber(value)) throw new AssertionError(message);
 };
 
