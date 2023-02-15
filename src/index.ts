@@ -120,6 +120,8 @@ export const isNull = (value: unknown): value is null => value === null;
 export const isUndefined = (value: unknown): value is undefined => value === undefined;
 /** Verify if a value is nullish. */
 export const isNullish = (value: unknown): value is null | undefined => isNull(value) || isUndefined(value);
+/** Verify if a value is not nullish. */
+export const isNotNullish = <T>(value: T): value is Exclude<T, null | undefined> => !isNullish(value);
 
 // Arrays.
 /** Verify if a value is an array. */
@@ -607,6 +609,16 @@ export function assertFalseOrNull(value: unknown, message?: string): asserts val
 export function assertNullish(value: unknown, message?: string): asserts value is null | undefined {
     if (!message) message = 'value is not nullish';
     if (!isNullish(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is not nullish.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertNotNullish<T>(value: T, message?: string): asserts value is Exclude<T, null | undefined> {
+    if (!message) message = 'value is nullish';
+    if (isNullish(value)) throw new AssertionError(message);
 };
 
 // Arrays.
