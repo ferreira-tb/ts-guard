@@ -107,7 +107,7 @@ export const isBoolean = (value: unknown): value is boolean => typeof value === 
 
 // Booleans, including null.
 /** Verify if a value is a boolean or null. */
-export const isBooleanOrNull = (value: unknown): value is boolean | null => (value === null || typeof value === 'boolean');
+export const isBooleanOrNull = (value: unknown): value is boolean | null => (value === null || isBoolean(value));
 /** Verify if a value is true or null. */
 export const isTrueOrNull = (value: unknown): value is boolean | null => (value === null || value === true);
 /** Verify if a value is false or null. */
@@ -546,6 +546,17 @@ export function assertNegativeIntegerOrAnyString(value: unknown, message?: strin
 export function assertNotZeroOrAnyString(value: unknown, message?: string): asserts value is number | string {
     if (!message) message = 'value is not a non-zero number or a string';
     if (!isNotZeroOrAnyString(value)) throw new AssertionError(message);
+};
+
+// Booleans.
+/**
+ * Asserts that a value is a boolean.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertBoolean(value: unknown, message?: string): asserts value is boolean {
+    if (!message) message = 'value is not a boolean';
+    if (!isBoolean(value)) throw new AssertionError(message);
 };
 
 // Booleans, including null.
