@@ -668,7 +668,7 @@ export function assertArrayIncludes<T>(array: T[], value: unknown, message?: str
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
-export function assertObject<T extends object>(value: T, message?: string): asserts value is T {
+export function assertObject<T extends object>(value: unknown, message?: string): asserts value is T {
     if (!message) message = 'value is not an object';
     if (!isObject(value)) throw new AssertionError(message);
 };
