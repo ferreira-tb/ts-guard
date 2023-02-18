@@ -5,6 +5,55 @@ export class AssertionError extends Error {
     };
 };
 
+export class NumberAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NumberAssertionError';
+    };
+};
+
+export class StringAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'StringAssertionError';
+    };
+};
+
+export class BooleanAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'BooleanAssertionError';
+    };
+};
+
+export class NullishAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NullishAssertionError';
+    };
+};
+
+export class ObjectAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ObjectAssertionError';
+    };
+};
+
+export class FunctionAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'FunctionAssertionError';
+    };
+};
+
+export class ArrayAssertionError extends AssertionError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ArrayAssertionError';
+    };
+};
+
 /////// TYPE GUARDS ///////
 // General.
 /** Verify if a value is instance of a class. */
@@ -104,14 +153,18 @@ export const isNotZeroOrAnyString = (value: unknown): value is number | string =
 // Booleans.
 /** Verify if a value is a boolean. */
 export const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
+/** Verify if a value is true. */
+export const isTrue = (value: unknown): value is true => value === true;
+/** Verify if a value is false. */
+export const isFalse = (value: unknown): value is false => value === false;
 
 // Booleans, including null.
 /** Verify if a value is a boolean or null. */
-export const isBooleanOrNull = (value: unknown): value is boolean | null => (value === null || isBoolean(value));
+export const isBooleanOrNull = (value: unknown): value is boolean | null => (isNull(value) || isBoolean(value));
 /** Verify if a value is true or null. */
-export const isTrueOrNull = (value: unknown): value is boolean | null => (value === null || value === true);
+export const isTrueOrNull = (value: unknown): value is true | null => (isNull(value) || isTrue(value));
 /** Verify if a value is false or null. */
-export const isFalseOrNull = (value: unknown): value is boolean | null => (value === null || value === false);
+export const isFalseOrNull = (value: unknown): value is false | null => (isNull(value) || isFalse(value));
 
 // Null and undefined.
 /** Verify if a value is null. */
@@ -129,7 +182,7 @@ export const isNotNullish = <T>(value: T): value is Exclude<T, null | undefined>
 
 // Arrays.
 /** Verify if a value is an array. */
-export const isArray: typeof Array['isArray'] = (value: any): value is any[] => Array.isArray(value);
+export const isArray: typeof Array['isArray'] = <K extends any[]>(value: unknown): value is K => Array.isArray(value);
 /** Verify if a value is included in an array. */
 export const arrayIncludes = <T>(array: T[], value: unknown): value is T => array.includes(value as T);
 
@@ -138,6 +191,25 @@ export const arrayIncludes = <T>(array: T[], value: unknown): value is T => arra
 export const isObject = <T extends object>(value: unknown): value is T => {
     return typeof value === 'object' && !isNull(value) && !isArray(value);
 };
+
+/** Verify if a value is an object or null, excluding arrays. */
+export const isObjectOrNull = <T extends object>(value: unknown): value is T | null => {
+    return isNull(value) || isObject(value);
+};
+
+/** Verify if a value is an object or an array, excluding null. */
+export const isObjectOrArray = <T extends object, K extends any[]>(value: unknown): value is T | K => {
+    return isObject(value) || isArray(value);
+};
+
+/** Verify if a string is a key of an object. */
+export const isKeyOf = <T extends object>(key: unknown, obj: T): key is keyof T => {
+    return isString(key) && key in obj;
+};
+
+// Functions.
+/** Verify if a value is a function. */
+export const isFunction = <T extends (...args: any[]) => any>(value: unknown): value is T => typeof value === 'function';
 
 /////// ASSERTIONS ///////
 // General.
@@ -170,7 +242,7 @@ export function assertInstanceOf<T>(value: unknown, constructor: new (...args: a
  */
 export function assertNumber(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a number';
-    if (!isNumber(value)) throw new AssertionError(message);
+    if (!isNumber(value)) throw new NumberAssertionError(message);
 };
 /**
  * Asserts that a value is an integer.
@@ -179,7 +251,7 @@ export function assertNumber(value: unknown, message?: string): asserts value is
  */
 export function assertInteger(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not an integer';
-    if (!isInteger(value)) throw new AssertionError(message);
+    if (!isInteger(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -189,7 +261,7 @@ export function assertInteger(value: unknown, message?: string): asserts value i
  */
 export function assertFinite(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a finite number';
-    if (!isFiniteNumber(value)) throw new AssertionError(message);
+    if (!isFiniteNumber(value)) throw new NumberAssertionError(message);
 };
 
 // Numbers, excluding zero.
@@ -200,7 +272,7 @@ export function assertFinite(value: unknown, message?: string): asserts value is
  */
 export function assertNotZero(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a finite number different from zero';
-    if (!isNotZero(value)) throw new AssertionError(message);
+    if (!isNotZero(value)) throw new NumberAssertionError(message);
 };
 
 // Numbers, including null.
@@ -211,7 +283,7 @@ export function assertNotZero(value: unknown, message?: string): asserts value i
  */
 export function assertNumberOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a number or null';
-    if (!isNumberOrNull(value)) throw new AssertionError(message);
+    if (!isNumberOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -221,7 +293,7 @@ export function assertNumberOrNull(value: unknown, message?: string): asserts va
  */
 export function assertIntegerOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not an integer or null';
-    if (!isIntegerOrNull(value)) throw new AssertionError(message);
+    if (!isIntegerOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -231,7 +303,7 @@ export function assertIntegerOrNull(value: unknown, message?: string): asserts v
  */
 export function assertFiniteOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a finite number or null';
-    if (!isFiniteOrNull(value)) throw new AssertionError(message);
+    if (!isFiniteOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -241,7 +313,7 @@ export function assertFiniteOrNull(value: unknown, message?: string): asserts va
  */
 export function assertNotZeroOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a number different from zero or null';
-    if (!isNotZeroOrNull(value)) throw new AssertionError(message);
+    if (!isNotZeroOrNull(value)) throw new NumberAssertionError(message);
 };
 
 // Positive or negative numbers.
@@ -252,7 +324,7 @@ export function assertNotZeroOrNull(value: unknown, message?: string): asserts v
  */
 export function assertPositiveNumber(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a positive number';
-    if (!isPositiveNumber(value)) throw new AssertionError(message);
+    if (!isPositiveNumber(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -262,7 +334,7 @@ export function assertPositiveNumber(value: unknown, message?: string): asserts 
  */
 export function assertPositiveInteger(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a positive integer';
-    if (!isPositiveInteger(value)) throw new AssertionError(message);
+    if (!isPositiveInteger(value)) throw new NumberAssertionError(message);
 }
 
 /**
@@ -272,7 +344,7 @@ export function assertPositiveInteger(value: unknown, message?: string): asserts
  */
 export function assertNegativeNumber(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a negative number';
-    if (!isNegativeNumber(value)) throw new AssertionError(message);
+    if (!isNegativeNumber(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -282,7 +354,7 @@ export function assertNegativeNumber(value: unknown, message?: string): asserts 
  */
 export function assertNegativeInteger(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a negative integer';
-    if (!isNegativeInteger(value)) throw new AssertionError(message);
+    if (!isNegativeInteger(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -292,7 +364,7 @@ export function assertNegativeInteger(value: unknown, message?: string): asserts
  */
 export function assertPositiveOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a positive number or null';
-    if (!isPositiveOrNull(value)) throw new AssertionError(message);
+    if (!isPositiveOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -302,7 +374,7 @@ export function assertPositiveOrNull(value: unknown, message?: string): asserts 
  */
 export function assertPositiveIntegerOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a positive integer or null';
-    if (!isPositiveIntegerOrNull(value)) throw new AssertionError(message);
+    if (!isPositiveIntegerOrNull(value)) throw new NumberAssertionError(message);
 }
 
 /**
@@ -312,7 +384,7 @@ export function assertPositiveIntegerOrNull(value: unknown, message?: string): a
  */
 export function assertNegativeOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a negative number or null';
-    if (!isNegativeOrNull(value)) throw new AssertionError(message);
+    if (!isNegativeOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -322,7 +394,7 @@ export function assertNegativeOrNull(value: unknown, message?: string): asserts 
  */
 export function assertNegativeIntegerOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a negative integer or null';
-    if (!isNegativeIntegerOrNull(value)) throw new AssertionError(message);
+    if (!isNegativeIntegerOrNull(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -332,7 +404,7 @@ export function assertNegativeIntegerOrNull(value: unknown, message?: string): a
  */
 export function assertNotPositiveNumber(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a nonpositive number';
-    if (!isNotPositiveNumber(value)) throw new AssertionError(message);
+    if (!isNotPositiveNumber(value)) throw new NumberAssertionError(message);
 };
 
 /**
@@ -342,7 +414,7 @@ export function assertNotPositiveNumber(value: unknown, message?: string): asser
  */
 export function assertNotNegativeNumber(value: unknown, message?: string): asserts value is number {
     if (!message) message = 'value is not a nonnegative number';
-    if (!isNotNegativeNumber(value)) throw new AssertionError(message);
+    if (!isNotNegativeNumber(value)) throw new NumberAssertionError(message);
 };
 
 // Strings.
@@ -353,7 +425,7 @@ export function assertNotNegativeNumber(value: unknown, message?: string): asser
  */
 export function assertAnyString(value: unknown, message?: string): asserts value is string {
     if (!message) message = 'value is not a string';
-    if (!isAnyString(value)) throw new AssertionError(message);
+    if (!isAnyString(value)) throw new StringAssertionError(message);
 };
 
 /**
@@ -363,7 +435,7 @@ export function assertAnyString(value: unknown, message?: string): asserts value
  */
 export function assertString(value: unknown, message?: string): asserts value is string {
     if (!message) message = 'value is not a nonempty string';
-    if (!isString(value)) throw new AssertionError(message);
+    if (!isString(value)) throw new StringAssertionError(message);
 };
 
 // Strings, including null.
@@ -374,7 +446,7 @@ export function assertString(value: unknown, message?: string): asserts value is
  */
 export function assertAnyStringOrNull(value: unknown, message?: string): asserts value is string | null {
     if (!message) message = 'value is not a string or null';
-    if (!isAnyStringOrNull(value)) throw new AssertionError(message);
+    if (!isAnyStringOrNull(value)) throw new StringAssertionError(message);
 };
 
 /**
@@ -384,7 +456,7 @@ export function assertAnyStringOrNull(value: unknown, message?: string): asserts
  */
 export function assertStringOrNull(value: unknown, message?: string): asserts value is string | null {
     if (!message) message = 'value is not a nonempty string or null';
-    if (!isStringOrNull(value)) throw new AssertionError(message);
+    if (!isStringOrNull(value)) throw new StringAssertionError(message);
 };
 
 // Numbers and strings.
@@ -556,7 +628,27 @@ export function assertNotZeroOrAnyString(value: unknown, message?: string): asse
  */
 export function assertBoolean(value: unknown, message?: string): asserts value is boolean {
     if (!message) message = 'value is not a boolean';
-    if (!isBoolean(value)) throw new AssertionError(message);
+    if (!isBoolean(value)) throw new BooleanAssertionError(message);
+};
+
+/**
+ * Asserts that a value is true.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertTrue(value: unknown, message?: string): asserts value is true {
+    if (!message) message = 'value is not true';
+    if (!isTrue(value)) throw new BooleanAssertionError(message);
+};
+
+/**
+ * Asserts that a value is false.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertFalse(value: unknown, message?: string): asserts value is false {
+    if (!message) message = 'value is not false';
+    if (!isFalse(value)) throw new BooleanAssertionError(message);
 };
 
 // Booleans, including null.
@@ -567,7 +659,7 @@ export function assertBoolean(value: unknown, message?: string): asserts value i
  */
 export function assertBooleanOrNull(value: unknown, message?: string): asserts value is boolean | null {
     if (!message) message = 'value is not a boolean or null';
-    if (!isBooleanOrNull(value)) throw new AssertionError(message);
+    if (!isBooleanOrNull(value)) throw new BooleanAssertionError(message);
 };
 
 /**
@@ -575,9 +667,9 @@ export function assertBooleanOrNull(value: unknown, message?: string): asserts v
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
-export function assertTrueOrNull(value: unknown, message?: string): asserts value is boolean | null {
+export function assertTrueOrNull(value: unknown, message?: string): asserts value is true | null {
     if (!message) message = 'value is not true or null';
-    if (!isTrueOrNull(value)) throw new AssertionError(message);
+    if (!isTrueOrNull(value)) throw new BooleanAssertionError(message);
 };
 
 /**
@@ -585,9 +677,9 @@ export function assertTrueOrNull(value: unknown, message?: string): asserts valu
  * @param value Value to be checked.
  * @param message Message to be displayed if the condition is not met.
  */
-export function assertFalseOrNull(value: unknown, message?: string): asserts value is boolean | null {
+export function assertFalseOrNull(value: unknown, message?: string): asserts value is false | null {
     if (!message) message = 'value is not false or null';
-    if (!isFalseOrNull(value)) throw new AssertionError(message);
+    if (!isFalseOrNull(value)) throw new BooleanAssertionError(message);
 };
 
 // Null and undefined.
@@ -598,7 +690,7 @@ export function assertFalseOrNull(value: unknown, message?: string): asserts val
  */
 export function assertNull(value: unknown, message?: string): asserts value is null {
     if (!message) message = 'value is not null';
-    if (!isNull(value)) throw new AssertionError(message);
+    if (!isNull(value)) throw new NullishAssertionError(message);
 };
 
 /**
@@ -608,7 +700,7 @@ export function assertNull(value: unknown, message?: string): asserts value is n
  */
 export function assertNotNull<T>(value: T, message?: string): asserts value is Exclude<T, null> {
     if (!message) message = 'value is null';
-    if (isNull(value)) throw new AssertionError(message);
+    if (isNull(value)) throw new NullishAssertionError(message);
 };
 
 /**
@@ -618,7 +710,7 @@ export function assertNotNull<T>(value: T, message?: string): asserts value is E
  */
 export function assertUndefined(value: unknown, message?: string): asserts value is undefined {
     if (!message) message = 'value is not undefined';
-    if (!isUndefined(value)) throw new AssertionError(message);
+    if (!isUndefined(value)) throw new NullishAssertionError(message);
 };
 
 /**
@@ -628,7 +720,7 @@ export function assertUndefined(value: unknown, message?: string): asserts value
  */
 export function assertNotUndefined<T>(value: T, message?: string): asserts value is Exclude<T, undefined> {
     if (!message) message = 'value is undefined';
-    if (isUndefined(value)) throw new AssertionError(message);
+    if (isUndefined(value)) throw new NullishAssertionError(message);
 };
 
 /**
@@ -638,7 +730,7 @@ export function assertNotUndefined<T>(value: T, message?: string): asserts value
  */
 export function assertNullish(value: unknown, message?: string): asserts value is null | undefined {
     if (!message) message = 'value is not nullish';
-    if (!isNullish(value)) throw new AssertionError(message);
+    if (!isNullish(value)) throw new NullishAssertionError(message);
 };
 
 /**
@@ -648,18 +740,18 @@ export function assertNullish(value: unknown, message?: string): asserts value i
  */
 export function assertNotNullish<T>(value: T, message?: string): asserts value is Exclude<T, null | undefined> {
     if (!message) message = 'value is nullish';
-    if (isNullish(value)) throw new AssertionError(message);
+    if (isNullish(value)) throw new NullishAssertionError(message);
 };
 
 // Arrays.
 export function assertArray<T>(value: unknown, message?: string): asserts value is T[] {
     if (!message) message = 'value is not an array';
-    if (!isArray(value)) throw new AssertionError(message);
+    if (!isArray(value)) throw new ArrayAssertionError(message);
 };
 
 export function assertArrayIncludes<T>(array: T[], value: unknown, message?: string): asserts value is T {
     if (!message) message = 'value is not included in the array';
-    if (!arrayIncludes(array, value)) throw new AssertionError(message);
+    if (!arrayIncludes(array, value)) throw new ArrayAssertionError(message);
 };
 
 // Objects.
@@ -670,7 +762,48 @@ export function assertArrayIncludes<T>(array: T[], value: unknown, message?: str
  */
 export function assertObject<T extends object>(value: unknown, message?: string): asserts value is T {
     if (!message) message = 'value is not an object';
-    if (!isObject(value)) throw new AssertionError(message);
+    if (!isObject(value)) throw new ObjectAssertionError(message);
+};
+
+/**
+ * Asserts that a value is an object, or null.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertObjectOrNull<T extends object>(value: unknown, message?: string): asserts value is T | null {
+    if (!message) message = 'value is not an object or null';
+    if (!isObjectOrNull(value)) throw new ObjectAssertionError(message);
+};
+
+/**
+ * Asserts that a value is an object or an array, excluding null.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertObjectOrArray<T extends object, K extends any[]>(value: unknown, message?: string): asserts value is T | K {
+    if (!message) message = 'value is not an object or an array';
+    if (!isObjectOrArray(value)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a string is a key of an object.
+ * @param key String key to be checked.
+ * @param obj Object to search for the key.
+ */
+export function assertKeyOf<T extends object>(key: unknown, obj: T, message?: string): asserts key is keyof T {
+    if (!message) message = `${key} is not a key of the object`;
+    if (!isKeyOf(key, obj)) throw new ObjectAssertionError(message);
+};
+
+// Functions.
+/**
+ * Asserts that a value is a function.
+ * @param value Value to be checked.
+ * @param message Message to be displayed if the condition is not met.
+ */
+export function assertFunction<T extends (...args: any[]) => any>(value: unknown, message?: string): asserts value is T {
+    if (!message) message = 'value is not a function';
+    if (!isFunction(value)) throw new FunctionAssertionError(message);
 };
 
 /////// HELPERS ///////
