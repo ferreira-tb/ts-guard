@@ -58,6 +58,8 @@ export class ArrayAssertionError extends AssertionError {
 // General.
 /** Verify if a value is instance of a class. */
 export const isInstanceOf = <T>(value: unknown, constructor: new (...args: any[]) => T): value is T => value instanceof constructor;
+/** Verify if two values are of the same type. */
+export const isSameType = <T>(value: unknown, reference: T): value is T => typeof value === typeof reference;
 
 // Numbers.
 /** Verify if a value is a number. */
@@ -232,6 +234,16 @@ export function assert(condition: unknown, message?: string): asserts condition 
 export function assertInstanceOf<T>(value: unknown, constructor: new (...args: any[]) => T, message?: string): asserts value is T {
     if (!message) message = 'value is not an instance of the specified class';
     if (!isInstanceOf(value, constructor)) throw new AssertionError(message);
+};
+
+/**
+ * Asserts that a value is of the same type as a reference.
+ * @param value Value to be checked.
+ * @param reference Reference to be checked against.
+ */
+export function assertSameType<T>(value: unknown, reference: T, message?: string): asserts value is T {
+    if (!message) message = 'value is not of the same type as reference';
+    if (!isSameType(value, reference)) throw new AssertionError(message);
 };
 
 // Numbers.
