@@ -100,10 +100,6 @@ export const isPositiveIntegerOrNull = (value: unknown): value is number | null 
 export const isNegativeOrNull = (value: unknown): value is number | null => (value === null || isNegativeNumber(value));
 /** Verify if a value is negative integer, or null. */
 export const isNegativeIntegerOrNull = (value: unknown): value is number | null => (value === null || isNegativeInteger(value));
-/** Verify if a value is not a positive number. */
-export const isNotPositiveNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) !== 1);
-/** Verify if a value is not a negative number. */
-export const isNotNegativeNumber = (value: unknown): value is number => (isFiniteNumber(value) && Math.sign(value) !== -1);
 
 // Strings.
 /** Verify if a value is a string, including empty strings. */
@@ -407,26 +403,6 @@ export function assertNegativeOrNull(value: unknown, message?: string): asserts 
 export function assertNegativeIntegerOrNull(value: unknown, message?: string): asserts value is number | null {
     if (!message) message = 'value is not a negative integer or null';
     if (!isNegativeIntegerOrNull(value)) throw new NumberAssertionError(message);
-};
-
-/**
- * Asserts that a value is a nonpositive finite number.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertNotPositiveNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a nonpositive number';
-    if (!isNotPositiveNumber(value)) throw new NumberAssertionError(message);
-};
-
-/**
- * Asserts that a value is a nonnegative finite number.
- * @param value Value to be checked.
- * @param message Message to be displayed if the condition is not met.
- */
-export function assertNotNegativeNumber(value: unknown, message?: string): asserts value is number {
-    if (!message) message = 'value is not a nonnegative number';
-    if (!isNotNegativeNumber(value)) throw new NumberAssertionError(message);
 };
 
 // Strings.
